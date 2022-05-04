@@ -2,10 +2,14 @@ package handlers
 
 import (
 	"context"
+	"github.com/jinzhu/copier"
+	"item_info/dal/kafka"
 	"item_info/dal/pika"
 	"item_info/kitex_gen/base"
 	"item_info/kitex_gen/item"
+	"item_info/model"
 	"item_info/tools"
+	"time"
 )
 
 func UpdateItem(ctx context.Context, req *item.UpdateItemRequest) *item.UpdateItemResponse {
@@ -18,8 +22,13 @@ func UpdateItem(ctx context.Context, req *item.UpdateItemRequest) *item.UpdateIt
 		return resp
 	}
 
-	if req.IsSetUserId() {
-		it.UserId = req.GetUserId()
+	oldItem := &model.Item{}
+	*oldItem = *it
+
+	err = copier.CopyWithOption(it, req, copier.Option{IgnoreEmpty: true})
+	if err != nil {
+		resp.BaseResp = tools.FillBaseResp(1, err.Error())
+		return resp
 	}
 
 	err = pika.SetItem(ctx, it)
@@ -27,6 +36,13 @@ func UpdateItem(ctx context.Context, req *item.UpdateItemRequest) *item.UpdateIt
 		resp.BaseResp = tools.FillBaseResp(1, err.Error())
 		return resp
 	}
+
+	kafka.SendItemChange(ctx, &model.ItemChange{
+		ItemId:     it.ItemId,
+		Time:       time.Now().Unix(),
+		ItemBefore: oldItem,
+		ItemAfter:  it,
+	})
 
 	return resp
 }

@@ -13,6 +13,8 @@ import (
 type Client interface {
 	GetItem(ctx context.Context, req *item.GetItemRequest, callOptions ...callopt.Option) (r *item.GetItemResponse, err error)
 	UpdateItem(ctx context.Context, req *item.UpdateItemRequest, callOptions ...callopt.Option) (r *item.UpdateItemResponse, err error)
+	CreateItem(ctx context.Context, req *item.CreateItemRequest, callOptions ...callopt.Option) (r *item.CreateItemResponse, err error)
+	GetItemList(ctx context.Context, req *item.GetItemListRequest, callOptions ...callopt.Option) (r *item.GetItemListResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -52,4 +54,14 @@ func (p *kItemServiceClient) GetItem(ctx context.Context, req *item.GetItemReque
 func (p *kItemServiceClient) UpdateItem(ctx context.Context, req *item.UpdateItemRequest, callOptions ...callopt.Option) (r *item.UpdateItemResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.UpdateItem(ctx, req)
+}
+
+func (p *kItemServiceClient) CreateItem(ctx context.Context, req *item.CreateItemRequest, callOptions ...callopt.Option) (r *item.CreateItemResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.CreateItem(ctx, req)
+}
+
+func (p *kItemServiceClient) GetItemList(ctx context.Context, req *item.GetItemListRequest, callOptions ...callopt.Option) (r *item.GetItemListResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.GetItemList(ctx, req)
 }

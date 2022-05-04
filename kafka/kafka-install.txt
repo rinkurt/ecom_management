@@ -1,0 +1,16 @@
+1.进入kafka容器:
+docker exec -it 637994f9fac1 bash
+2.创建topic
+--dockerkafka_zookeeper_1 ( zook容器名)
+$KAFKA_HOME/bin/kafka-topics.sh --create --topic moni --partitions 4 --zookeeper kafka-zookeeper-1:2181 --replication-factor 1 
+3.查看主题信息
+-- dockerkafka_zookeeper_1  （zook容器名）
+$KAFKA_HOME/bin/kafka-topics.sh --zookeeper kafka-zookeeper-1:2181 --describe --topic moni
+4.测试发送消息
+-- dockerkafka_kafka_1（kafka容器名）
+$KAFKA_HOME/bin/kafka-console-producer.sh --topic=moni --broker-list kafka-kafka-1:9092
+5.测试接收消息
+-- dockerkafka_kafka_1（kafka容器名）
+$KAFKA_HOME/bin/kafka-console-consumer.sh --bootstrap-server kafka-kafka-1:9092 --from-beginning --topic moni
+
+

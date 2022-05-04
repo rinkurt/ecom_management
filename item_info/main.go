@@ -1,13 +1,14 @@
 package main
 
 import (
-	"item_info/dal/pika"
+	"item_info/dal"
 	item "item_info/kitex_gen/item/itemservice"
 	"log"
 )
 
 func main() {
-	pika.Init()
+	defer dal.Close()
+	dal.Init()
 
 	svr := item.NewServer(new(ItemServiceImpl))
 

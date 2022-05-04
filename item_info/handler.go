@@ -19,4 +19,13 @@ func (s *ItemServiceImpl) UpdateItem(ctx context.Context, req *item.UpdateItemRe
 	return handlers.UpdateItem(ctx, req), nil
 }
 
-// TODO: CreateItem
+// CreateItem implements the ItemServiceImpl interface.
+func (s *ItemServiceImpl) CreateItem(ctx context.Context, req *item.CreateItemRequest) (resp *item.CreateItemResponse, err error) {
+	return handlers.CreateItem(ctx, req), nil
+}
+
+// GetItemList implements the ItemServiceImpl interface.
+func (s *ItemServiceImpl) GetItemList(ctx context.Context, req *item.GetItemListRequest) (resp *item.GetItemListResponse, err error) {
+	// TODO: Your code here...
+	return
+}

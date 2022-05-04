@@ -1,0 +1,26 @@
+version: '3'
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+  kafka:
+    image: wurstmeister/kafka
+    depends_on: [ zookeeper ]
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
+      KAFKA_CREATE_TOPICS: "test"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /data/product/king_bigdata/data/kafka/docker.sock:/var/run/docker.sock
+  kafka-manager:  
+    image: sheepkiller/kafka-manager                ## 镜像：开源的web管理kafka集群的界面
+    environment:
+        ZK_HOSTS: "zookeeper:2181"                   ## 修改:宿主机IP
+    ports:  
+      - "9000:9000"                                 ## 暴露端口
+    depends_on:
+      - zookeeper
+      - kafka

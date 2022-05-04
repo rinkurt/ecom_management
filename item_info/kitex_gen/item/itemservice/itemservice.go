@@ -19,8 +19,10 @@ func NewServiceInfo() *kitex.ServiceInfo {
 	serviceName := "ItemService"
 	handlerType := (*item.ItemService)(nil)
 	methods := map[string]kitex.MethodInfo{
-		"GetItem":    kitex.NewMethodInfo(getItemHandler, newItemServiceGetItemArgs, newItemServiceGetItemResult, false),
-		"UpdateItem": kitex.NewMethodInfo(updateItemHandler, newItemServiceUpdateItemArgs, newItemServiceUpdateItemResult, false),
+		"GetItem":     kitex.NewMethodInfo(getItemHandler, newItemServiceGetItemArgs, newItemServiceGetItemResult, false),
+		"UpdateItem":  kitex.NewMethodInfo(updateItemHandler, newItemServiceUpdateItemArgs, newItemServiceUpdateItemResult, false),
+		"CreateItem":  kitex.NewMethodInfo(createItemHandler, newItemServiceCreateItemArgs, newItemServiceCreateItemResult, false),
+		"GetItemList": kitex.NewMethodInfo(getItemListHandler, newItemServiceGetItemListArgs, newItemServiceGetItemListResult, false),
 	}
 	extra := map[string]interface{}{
 		"PackageName": "item",
@@ -72,6 +74,42 @@ func newItemServiceUpdateItemResult() interface{} {
 	return item.NewItemServiceUpdateItemResult()
 }
 
+func createItemHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*item.ItemServiceCreateItemArgs)
+	realResult := result.(*item.ItemServiceCreateItemResult)
+	success, err := handler.(item.ItemService).CreateItem(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newItemServiceCreateItemArgs() interface{} {
+	return item.NewItemServiceCreateItemArgs()
+}
+
+func newItemServiceCreateItemResult() interface{} {
+	return item.NewItemServiceCreateItemResult()
+}
+
+func getItemListHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*item.ItemServiceGetItemListArgs)
+	realResult := result.(*item.ItemServiceGetItemListResult)
+	success, err := handler.(item.ItemService).GetItemList(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newItemServiceGetItemListArgs() interface{} {
+	return item.NewItemServiceGetItemListArgs()
+}
+
+func newItemServiceGetItemListResult() interface{} {
+	return item.NewItemServiceGetItemListResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -97,6 +135,26 @@ func (p *kClient) UpdateItem(ctx context.Context, req *item.UpdateItemRequest) (
 	_args.Req = req
 	var _result item.ItemServiceUpdateItemResult
 	if err = p.c.Call(ctx, "UpdateItem", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) CreateItem(ctx context.Context, req *item.CreateItemRequest) (r *item.CreateItemResponse, err error) {
+	var _args item.ItemServiceCreateItemArgs
+	_args.Req = req
+	var _result item.ItemServiceCreateItemResult
+	if err = p.c.Call(ctx, "CreateItem", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetItemList(ctx context.Context, req *item.GetItemListRequest) (r *item.GetItemListResponse, err error) {
+	var _args item.ItemServiceGetItemListArgs
+	_args.Req = req
+	var _result item.ItemServiceGetItemListResult
+	if err = p.c.Call(ctx, "GetItemList", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
