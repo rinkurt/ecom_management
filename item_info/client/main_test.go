@@ -24,15 +24,17 @@ func init() {
 }
 
 func TestCreateItem(t *testing.T) {
-	resp, err := cli.CreateItem(ctx, &item.CreateItemRequest{
-		ItemId:   123,
-		UserId:   456,
-		Title:    "hahaha",
-		VideoUrl: "sample_video_url",
-		Label:    "sample_label",
-	})
-	fmt.Println(err)
-	fmt.Println(litter.Sdump(resp))
+	for i := 10000; i < 10050; i++ {
+		resp, err := cli.CreateItem(ctx, &item.CreateItemRequest{
+			ItemId:   int64(i),
+			UserId:   int64(i + 10000),
+			Title:    fmt.Sprintf("id%v", i),
+			VideoUrl: fmt.Sprintf("url_%v", i),
+			Label:    "sample_label",
+		})
+		fmt.Println(err)
+		fmt.Println(litter.Sdump(resp))
+	}
 }
 
 func TestGetItem(t *testing.T) {
@@ -43,10 +45,15 @@ func TestGetItem(t *testing.T) {
 
 func TestUpdateItem(t *testing.T) {
 	resp, err := cli.UpdateItem(ctx, &item.UpdateItemRequest{
-		ItemId: 123,
-		Title:  thrift.StringPtr("hahaha2"),
-		Label:  thrift.StringPtr("sample_label2"),
+		ItemId: 10001,
+		IsEcom: thrift.BoolPtr(true),
 	})
+	fmt.Println(err)
+	fmt.Println(litter.Sdump(resp))
+}
+
+func TestGetItemChange(t *testing.T) {
+	resp, err := cli.GetItemChangeHistory(ctx, &item.GetItemChangeHistoryRequest{})
 	fmt.Println(err)
 	fmt.Println(litter.Sdump(resp))
 }

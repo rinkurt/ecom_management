@@ -85,9 +85,33 @@ struct GetItemListResponse {
     255: base.BaseResp BaseResp,
 }
 
+struct GetItemChangeHistoryRequest {
+    1: optional i64 item_id,
+    2: optional i64 time_from,
+    3: optional i64 time_to,
+    100: optional i32 order, // 0:DESC, 1:ASC
+    101: optional string order_by,
+    102: optional i64 size,
+    103: optional i64 offset,
+}
+
+struct ItemChange {
+    1: i64 item_id,
+    2: i64 time,
+    3: string item_before, // json
+    4: string item_after, // json
+}
+
+struct GetItemChangeHistoryResponse {
+    1: list<ItemChange> history,
+    2: i64 total,
+    255: base.BaseResp BaseResp,
+}
+
 service ItemService {
     GetItemResponse GetItem(1: GetItemRequest req)
     UpdateItemResponse UpdateItem(1: UpdateItemRequest req)
     CreateItemResponse CreateItem(1: CreateItemRequest req)
     GetItemListResponse GetItemList(1: GetItemListRequest req)
+    GetItemChangeHistoryResponse GetItemChangeHistory(1: GetItemChangeHistoryRequest req)
 }

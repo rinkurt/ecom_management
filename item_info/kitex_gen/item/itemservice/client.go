@@ -15,6 +15,7 @@ type Client interface {
 	UpdateItem(ctx context.Context, req *item.UpdateItemRequest, callOptions ...callopt.Option) (r *item.UpdateItemResponse, err error)
 	CreateItem(ctx context.Context, req *item.CreateItemRequest, callOptions ...callopt.Option) (r *item.CreateItemResponse, err error)
 	GetItemList(ctx context.Context, req *item.GetItemListRequest, callOptions ...callopt.Option) (r *item.GetItemListResponse, err error)
+	GetItemChangeHistory(ctx context.Context, req *item.GetItemChangeHistoryRequest, callOptions ...callopt.Option) (r *item.GetItemChangeHistoryResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -64,4 +65,9 @@ func (p *kItemServiceClient) CreateItem(ctx context.Context, req *item.CreateIte
 func (p *kItemServiceClient) GetItemList(ctx context.Context, req *item.GetItemListRequest, callOptions ...callopt.Option) (r *item.GetItemListResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetItemList(ctx, req)
+}
+
+func (p *kItemServiceClient) GetItemChangeHistory(ctx context.Context, req *item.GetItemChangeHistoryRequest, callOptions ...callopt.Option) (r *item.GetItemChangeHistoryResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.GetItemChangeHistory(ctx, req)
 }

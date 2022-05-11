@@ -19,10 +19,11 @@ func NewServiceInfo() *kitex.ServiceInfo {
 	serviceName := "ItemService"
 	handlerType := (*item.ItemService)(nil)
 	methods := map[string]kitex.MethodInfo{
-		"GetItem":     kitex.NewMethodInfo(getItemHandler, newItemServiceGetItemArgs, newItemServiceGetItemResult, false),
-		"UpdateItem":  kitex.NewMethodInfo(updateItemHandler, newItemServiceUpdateItemArgs, newItemServiceUpdateItemResult, false),
-		"CreateItem":  kitex.NewMethodInfo(createItemHandler, newItemServiceCreateItemArgs, newItemServiceCreateItemResult, false),
-		"GetItemList": kitex.NewMethodInfo(getItemListHandler, newItemServiceGetItemListArgs, newItemServiceGetItemListResult, false),
+		"GetItem":              kitex.NewMethodInfo(getItemHandler, newItemServiceGetItemArgs, newItemServiceGetItemResult, false),
+		"UpdateItem":           kitex.NewMethodInfo(updateItemHandler, newItemServiceUpdateItemArgs, newItemServiceUpdateItemResult, false),
+		"CreateItem":           kitex.NewMethodInfo(createItemHandler, newItemServiceCreateItemArgs, newItemServiceCreateItemResult, false),
+		"GetItemList":          kitex.NewMethodInfo(getItemListHandler, newItemServiceGetItemListArgs, newItemServiceGetItemListResult, false),
+		"GetItemChangeHistory": kitex.NewMethodInfo(getItemChangeHistoryHandler, newItemServiceGetItemChangeHistoryArgs, newItemServiceGetItemChangeHistoryResult, false),
 	}
 	extra := map[string]interface{}{
 		"PackageName": "item",
@@ -110,6 +111,24 @@ func newItemServiceGetItemListResult() interface{} {
 	return item.NewItemServiceGetItemListResult()
 }
 
+func getItemChangeHistoryHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*item.ItemServiceGetItemChangeHistoryArgs)
+	realResult := result.(*item.ItemServiceGetItemChangeHistoryResult)
+	success, err := handler.(item.ItemService).GetItemChangeHistory(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newItemServiceGetItemChangeHistoryArgs() interface{} {
+	return item.NewItemServiceGetItemChangeHistoryArgs()
+}
+
+func newItemServiceGetItemChangeHistoryResult() interface{} {
+	return item.NewItemServiceGetItemChangeHistoryResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -155,6 +174,16 @@ func (p *kClient) GetItemList(ctx context.Context, req *item.GetItemListRequest)
 	_args.Req = req
 	var _result item.ItemServiceGetItemListResult
 	if err = p.c.Call(ctx, "GetItemList", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetItemChangeHistory(ctx context.Context, req *item.GetItemChangeHistoryRequest) (r *item.GetItemChangeHistoryResponse, err error) {
+	var _args item.ItemServiceGetItemChangeHistoryArgs
+	_args.Req = req
+	var _result item.ItemServiceGetItemChangeHistoryResult
+	if err = p.c.Call(ctx, "GetItemChangeHistory", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

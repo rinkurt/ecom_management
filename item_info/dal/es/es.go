@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/aquasecurity/esquery"
+	"github.com/bitly/go-simplejson"
 	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/pkg/errors"
 	"log"
@@ -46,7 +47,7 @@ func Upsert(ctx context.Context, index, id string, val interface{}) error {
 }
 
 // Search returns all items as map[string]interface{}
-func Search(ctx context.Context, index string, req *esquery.SearchRequest) ([]map[string]interface{}, error) {
+func Search(ctx context.Context, index string, req *esquery.SearchRequest) ([]*simplejson.Json, int64, error) {
 	resp, err := req.Run(
 		cli,
 		cli.Search.WithContext(ctx),
@@ -54,23 +55,25 @@ func Search(ctx context.Context, index string, req *esquery.SearchRequest) ([]ma
 		cli.Search.WithPretty(),
 	)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer resp.Body.Close()
 	if resp.IsError() {
-		return nil, errors.New(resp.String())
+		return nil, 0, errors.New(resp.String())
 	}
 
-	var r map[string]interface{}
-	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
-		return nil, err
+	r, err := simplejson.NewFromReader(resp.Body)
+	if err != nil {
+		return nil, 0, err
 	}
 
-	res := make([]map[string]interface{}, 0)
-	for _, hit := range r["hits"].(map[string]interface{})["hits"].([]interface{}) {
-		source := hit.(map[string]interface{})["_source"].(map[string]interface{})
+	res := make([]*simplejson.Json, 0)
+	hits := r.GetPath("hits", "hits")
+	for i := range hits.MustArray() {
+		source := hits.GetIndex(i).Get("_source")
 		res = append(res, source)
 	}
 
-	return res, nil
+	total := r.GetPath("hits", "total", "value").MustInt64()
+	return res, total, nil
 }

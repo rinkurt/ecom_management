@@ -1,6 +1,8 @@
 package dal
 
 import (
+	"item_info/dal/ch"
+	"item_info/dal/es"
 	"item_info/dal/kafka"
 	"item_info/dal/pika"
 )
@@ -8,6 +10,8 @@ import (
 func Init() {
 	kafka.Init()
 	pika.Init()
+	es.Init()
+	ch.Init()
 }
 
 func Close() {

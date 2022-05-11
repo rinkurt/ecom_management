@@ -9,7 +9,7 @@ func FillBaseResp(code int64, msg string) *base.BaseResp {
 	return &base.BaseResp{StatusCode: code, StatusMessage: msg}
 }
 
-func ConvertMapSlice(in []map[string]interface{}, out interface{}) error {
+func ConvertJsonToStruct(in interface{}, out interface{}) error {
 	bytes, err := json.Marshal(in)
 	if err != nil {
 		return err

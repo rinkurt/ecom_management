@@ -26,6 +26,10 @@ func (s *ItemServiceImpl) CreateItem(ctx context.Context, req *item.CreateItemRe
 
 // GetItemList implements the ItemServiceImpl interface.
 func (s *ItemServiceImpl) GetItemList(ctx context.Context, req *item.GetItemListRequest) (resp *item.GetItemListResponse, err error) {
-	// TODO: Your code here...
-	return
+	return handlers.GetItemList(ctx, req), nil
+}
+
+// GetItemChangeHistory implements the ItemServiceImpl interface.
+func (s *ItemServiceImpl) GetItemChangeHistory(ctx context.Context, req *item.GetItemChangeHistoryRequest) (resp *item.GetItemChangeHistoryResponse, err error) {
+	return handlers.GetItemChangeHistory(ctx, req), nil
 }

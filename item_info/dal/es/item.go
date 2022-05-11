@@ -15,7 +15,7 @@ func UpsertItem(ctx context.Context, it *model.Item) error {
 	return Upsert(ctx, IndexItem, cast.ToString(it.ItemId), it)
 }
 
-func SearchItem(ctx context.Context, req *item.GetItemListRequest) ([]*model.Item, error) {
+func SearchItem(ctx context.Context, req *item.GetItemListRequest) ([]*model.Item, int64, error) {
 	q := esquery.Bool()
 	if req.IsSetItemId() {
 		q = q.Filter(esquery.Terms("item_id", ToAnySlice(req.GetItemId())...))
@@ -54,16 +54,16 @@ func SearchItem(ctx context.Context, req *item.GetItemListRequest) ([]*model.Ite
 		From(uint64(req.GetOffset())).
 		Size(uint64(req.GetSize())).
 		Sort(req.GetOrderBy(), order)
-	resp, err := Search(ctx, IndexItem, searchReq)
+	resp, total, err := Search(ctx, IndexItem, searchReq)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	var res []*model.Item
-	err = tools.ConvertMapSlice(resp, &res)
+	err = tools.ConvertJsonToStruct(resp, &res)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return res, nil
+	return res, total, nil
 }

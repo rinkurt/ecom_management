@@ -32,9 +32,9 @@ func TestUpsertItem(t *testing.T) {
 
 func TestSearchItem(t *testing.T) {
 	Init()
-	res, err := SearchItem(context.Background(), &item.GetItemListRequest{
-		ItemId:         []int64{1234, 2222},
-		Title:          thrift.StringPtr("ddddd"),
+	res, total, err := SearchItem(context.Background(), &item.GetItemListRequest{
+		ItemId:         nil,
+		Title:          nil,
 		CreateTimeFrom: nil,
 		CreateTimeTo:   nil,
 		Label:          nil,
@@ -44,9 +44,10 @@ func TestSearchItem(t *testing.T) {
 		ContentLevel:   nil,
 		Order:          1,
 		OrderBy:        "item_id",
-		Size:           10,
+		Size:           20,
 		Offset:         thrift.Int64Ptr(0),
 	})
 	fmt.Println(err)
+	fmt.Println(total)
 	fmt.Println(litter.Sdump(res))
 }

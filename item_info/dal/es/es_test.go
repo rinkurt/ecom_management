@@ -58,7 +58,7 @@ func TestSearch(t *testing.T) {
 	Init()
 	q := esquery.Bool().Must(esquery.Term("item_id", 1234))
 	req := esquery.Search().Query(q)
-	res, err := Search(context.Background(), "item", req)
+	res, _, err := Search(context.Background(), "item", req)
 	fmt.Println(err)
 	fmt.Println(res)
 }
