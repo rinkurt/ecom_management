@@ -4,11 +4,66 @@ package item
 
 import (
 	"context"
+	"database/sql"
+	"database/sql/driver"
 	"fmt"
 	"github.com/apache/thrift/lib/go/thrift"
 	"item_info/kitex_gen/base"
 	"strings"
 )
+
+type CountType int64
+
+const (
+	CountType_Play    CountType = 1
+	CountType_Like    CountType = 2
+	CountType_Share   CountType = 3
+	CountType_Comment CountType = 4
+)
+
+func (p CountType) String() string {
+	switch p {
+	case CountType_Play:
+		return "Play"
+	case CountType_Like:
+		return "Like"
+	case CountType_Share:
+		return "Share"
+	case CountType_Comment:
+		return "Comment"
+	}
+	return "<UNSET>"
+}
+
+func CountTypeFromString(s string) (CountType, error) {
+	switch s {
+	case "Play":
+		return CountType_Play, nil
+	case "Like":
+		return CountType_Like, nil
+	case "Share":
+		return CountType_Share, nil
+	case "Comment":
+		return CountType_Comment, nil
+	}
+	return CountType(0), fmt.Errorf("not a valid CountType string")
+}
+
+func CountTypePtr(v CountType) *CountType { return &v }
+
+func (p *CountType) Scan(value interface{}) (err error) {
+	var result sql.NullInt64
+	err = result.Scan(value)
+	*p = CountType(result.Int64)
+	return
+}
+
+func (p *CountType) Value() (driver.Value, error) {
+	if p == nil {
+		return nil, nil
+	}
+	return int64(*p), nil
+}
 
 type GetItemRequest struct {
 	ItemIdList []int64 `thrift:"item_id_list,1" json:"item_id_list"`
@@ -5767,6 +5822,452 @@ func (p *GetItemChangeHistoryResponse) Field255DeepEqual(src *base.BaseResp) boo
 	return true
 }
 
+type IncrCountRequest struct {
+	ItemId    int64     `thrift:"item_id,1" json:"item_id"`
+	CountType CountType `thrift:"count_type,2" json:"count_type"`
+	Incr      int64     `thrift:"incr,3" json:"incr"`
+}
+
+func NewIncrCountRequest() *IncrCountRequest {
+	return &IncrCountRequest{}
+}
+
+func (p *IncrCountRequest) GetItemId() (v int64) {
+	return p.ItemId
+}
+
+func (p *IncrCountRequest) GetCountType() (v CountType) {
+	return p.CountType
+}
+
+func (p *IncrCountRequest) GetIncr() (v int64) {
+	return p.Incr
+}
+func (p *IncrCountRequest) SetItemId(val int64) {
+	p.ItemId = val
+}
+func (p *IncrCountRequest) SetCountType(val CountType) {
+	p.CountType = val
+}
+func (p *IncrCountRequest) SetIncr(val int64) {
+	p.Incr = val
+}
+
+var fieldIDToName_IncrCountRequest = map[int16]string{
+	1: "item_id",
+	2: "count_type",
+	3: "incr",
+}
+
+func (p *IncrCountRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 2:
+			if fieldTypeId == thrift.I32 {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 3:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_IncrCountRequest[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *IncrCountRequest) ReadField1(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		p.ItemId = v
+	}
+	return nil
+}
+
+func (p *IncrCountRequest) ReadField2(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadI32(); err != nil {
+		return err
+	} else {
+		p.CountType = CountType(v)
+	}
+	return nil
+}
+
+func (p *IncrCountRequest) ReadField3(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		p.Incr = v
+	}
+	return nil
+}
+
+func (p *IncrCountRequest) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("IncrCountRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *IncrCountRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("item_id", thrift.I64, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.ItemId); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *IncrCountRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("count_type", thrift.I32, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI32(int32(p.CountType)); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *IncrCountRequest) writeField3(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("incr", thrift.I64, 3); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.Incr); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *IncrCountRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("IncrCountRequest(%+v)", *p)
+}
+
+func (p *IncrCountRequest) DeepEqual(ano *IncrCountRequest) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.ItemId) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.CountType) {
+		return false
+	}
+	if !p.Field3DeepEqual(ano.Incr) {
+		return false
+	}
+	return true
+}
+
+func (p *IncrCountRequest) Field1DeepEqual(src int64) bool {
+
+	if p.ItemId != src {
+		return false
+	}
+	return true
+}
+func (p *IncrCountRequest) Field2DeepEqual(src CountType) bool {
+
+	if p.CountType != src {
+		return false
+	}
+	return true
+}
+func (p *IncrCountRequest) Field3DeepEqual(src int64) bool {
+
+	if p.Incr != src {
+		return false
+	}
+	return true
+}
+
+type IncrCountResponse struct {
+	BaseResp *base.BaseResp `thrift:"BaseResp,255" json:"BaseResp"`
+}
+
+func NewIncrCountResponse() *IncrCountResponse {
+	return &IncrCountResponse{}
+}
+
+var IncrCountResponse_BaseResp_DEFAULT *base.BaseResp
+
+func (p *IncrCountResponse) GetBaseResp() (v *base.BaseResp) {
+	if !p.IsSetBaseResp() {
+		return IncrCountResponse_BaseResp_DEFAULT
+	}
+	return p.BaseResp
+}
+func (p *IncrCountResponse) SetBaseResp(val *base.BaseResp) {
+	p.BaseResp = val
+}
+
+var fieldIDToName_IncrCountResponse = map[int16]string{
+	255: "BaseResp",
+}
+
+func (p *IncrCountResponse) IsSetBaseResp() bool {
+	return p.BaseResp != nil
+}
+
+func (p *IncrCountResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 255:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField255(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_IncrCountResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *IncrCountResponse) ReadField255(iprot thrift.TProtocol) error {
+	p.BaseResp = base.NewBaseResp()
+	if err := p.BaseResp.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *IncrCountResponse) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("IncrCountResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField255(oprot); err != nil {
+			fieldId = 255
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *IncrCountResponse) writeField255(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("BaseResp", thrift.STRUCT, 255); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.BaseResp.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
+}
+
+func (p *IncrCountResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("IncrCountResponse(%+v)", *p)
+}
+
+func (p *IncrCountResponse) DeepEqual(ano *IncrCountResponse) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field255DeepEqual(ano.BaseResp) {
+		return false
+	}
+	return true
+}
+
+func (p *IncrCountResponse) Field255DeepEqual(src *base.BaseResp) bool {
+
+	if !p.BaseResp.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
 type ItemService interface {
 	GetItem(ctx context.Context, req *GetItemRequest) (r *GetItemResponse, err error)
 
@@ -5777,6 +6278,8 @@ type ItemService interface {
 	GetItemList(ctx context.Context, req *GetItemListRequest) (r *GetItemListResponse, err error)
 
 	GetItemChangeHistory(ctx context.Context, req *GetItemChangeHistoryRequest) (r *GetItemChangeHistoryResponse, err error)
+
+	IncrCount(ctx context.Context, req *IncrCountRequest) (r *IncrCountResponse, err error)
 }
 
 type ItemServiceClient struct {
@@ -5855,6 +6358,16 @@ func (p *ItemServiceClient) GetItemChangeHistory(ctx context.Context, req *GetIt
 	return _result.GetSuccess(), nil
 }
 
+func (p *ItemServiceClient) IncrCount(ctx context.Context, req *IncrCountRequest) (r *IncrCountResponse, err error) {
+	var _args ItemServiceIncrCountArgs
+	_args.Req = req
+	var _result ItemServiceIncrCountResult
+	if err = p.Client_().Call(ctx, "IncrCount", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
 type ItemServiceProcessor struct {
 	processorMap map[string]thrift.TProcessorFunction
 	handler      ItemService
@@ -5880,6 +6393,7 @@ func NewItemServiceProcessor(handler ItemService) *ItemServiceProcessor {
 	self.AddToProcessorMap("CreateItem", &itemServiceProcessorCreateItem{handler: handler})
 	self.AddToProcessorMap("GetItemList", &itemServiceProcessorGetItemList{handler: handler})
 	self.AddToProcessorMap("GetItemChangeHistory", &itemServiceProcessorGetItemChangeHistory{handler: handler})
+	self.AddToProcessorMap("IncrCount", &itemServiceProcessorIncrCount{handler: handler})
 	return self
 }
 func (p *ItemServiceProcessor) Process(ctx context.Context, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
@@ -6123,6 +6637,54 @@ func (p *itemServiceProcessorGetItemChangeHistory) Process(ctx context.Context, 
 		result.Success = retval
 	}
 	if err2 = oprot.WriteMessageBegin("GetItemChangeHistory", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type itemServiceProcessorIncrCount struct {
+	handler ItemService
+}
+
+func (p *itemServiceProcessorIncrCount) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ItemServiceIncrCountArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("IncrCount", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := ItemServiceIncrCountResult{}
+	var retval *IncrCountResponse
+	if retval, err2 = p.handler.IncrCount(ctx, args.Req); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing IncrCount: "+err2.Error())
+		oprot.WriteMessageBegin("IncrCount", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return true, err2
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("IncrCount", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -7823,6 +8385,344 @@ func (p *ItemServiceGetItemChangeHistoryResult) DeepEqual(ano *ItemServiceGetIte
 }
 
 func (p *ItemServiceGetItemChangeHistoryResult) Field0DeepEqual(src *GetItemChangeHistoryResponse) bool {
+
+	if !p.Success.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ItemServiceIncrCountArgs struct {
+	Req *IncrCountRequest `thrift:"req,1" json:"req"`
+}
+
+func NewItemServiceIncrCountArgs() *ItemServiceIncrCountArgs {
+	return &ItemServiceIncrCountArgs{}
+}
+
+var ItemServiceIncrCountArgs_Req_DEFAULT *IncrCountRequest
+
+func (p *ItemServiceIncrCountArgs) GetReq() (v *IncrCountRequest) {
+	if !p.IsSetReq() {
+		return ItemServiceIncrCountArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *ItemServiceIncrCountArgs) SetReq(val *IncrCountRequest) {
+	p.Req = val
+}
+
+var fieldIDToName_ItemServiceIncrCountArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *ItemServiceIncrCountArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *ItemServiceIncrCountArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ItemServiceIncrCountArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ItemServiceIncrCountArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = NewIncrCountRequest()
+	if err := p.Req.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ItemServiceIncrCountArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("IncrCount_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ItemServiceIncrCountArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ItemServiceIncrCountArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ItemServiceIncrCountArgs(%+v)", *p)
+}
+
+func (p *ItemServiceIncrCountArgs) DeepEqual(ano *ItemServiceIncrCountArgs) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Req) {
+		return false
+	}
+	return true
+}
+
+func (p *ItemServiceIncrCountArgs) Field1DeepEqual(src *IncrCountRequest) bool {
+
+	if !p.Req.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ItemServiceIncrCountResult struct {
+	Success *IncrCountResponse `thrift:"success,0" json:"success,omitempty"`
+}
+
+func NewItemServiceIncrCountResult() *ItemServiceIncrCountResult {
+	return &ItemServiceIncrCountResult{}
+}
+
+var ItemServiceIncrCountResult_Success_DEFAULT *IncrCountResponse
+
+func (p *ItemServiceIncrCountResult) GetSuccess() (v *IncrCountResponse) {
+	if !p.IsSetSuccess() {
+		return ItemServiceIncrCountResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *ItemServiceIncrCountResult) SetSuccess(x interface{}) {
+	p.Success = x.(*IncrCountResponse)
+}
+
+var fieldIDToName_ItemServiceIncrCountResult = map[int16]string{
+	0: "success",
+}
+
+func (p *ItemServiceIncrCountResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *ItemServiceIncrCountResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ItemServiceIncrCountResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ItemServiceIncrCountResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = NewIncrCountResponse()
+	if err := p.Success.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ItemServiceIncrCountResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("IncrCount_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ItemServiceIncrCountResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *ItemServiceIncrCountResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ItemServiceIncrCountResult(%+v)", *p)
+}
+
+func (p *ItemServiceIncrCountResult) DeepEqual(ano *ItemServiceIncrCountResult) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field0DeepEqual(ano.Success) {
+		return false
+	}
+	return true
+}
+
+func (p *ItemServiceIncrCountResult) Field0DeepEqual(src *IncrCountResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false

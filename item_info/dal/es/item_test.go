@@ -14,15 +14,15 @@ import (
 func TestUpsertItem(t *testing.T) {
 	Init()
 	it := &model.Item{
-		ItemId:       2222,
-		UserId:       12345,
-		Title:        "ddddd",
-		VideoUrl:     "sss",
-		Label:        "ttt",
+		ItemId:       83424,
+		UserId:       123,
+		Title:        "测试视频3",
+		VideoUrl:     "https://lf1-cdn-tos.bytegoofy.com/goofy/ies/douyin_web/async/1133.f2e2d5",
+		Label:        "精选",
 		Status:       1,
 		Rate:         2,
-		IsEcom:       false,
-		ContentLevel: 0,
+		IsEcom:       true,
+		ContentLevel: 4,
 		CreateTime:   time.Now().Unix(),
 		UpdateTime:   time.Now().Unix(),
 	}

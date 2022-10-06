@@ -108,10 +108,28 @@ struct GetItemChangeHistoryResponse {
     255: base.BaseResp BaseResp,
 }
 
+enum CountType {
+    Play = 1,
+    Like = 2,
+    Share = 3,
+    Comment = 4,
+}
+
+struct IncrCountRequest {
+    1: i64 item_id,
+    2: CountType count_type,
+    3: i64 incr,
+}
+
+struct IncrCountResponse {
+    255: base.BaseResp BaseResp,
+}
+
 service ItemService {
     GetItemResponse GetItem(1: GetItemRequest req)
     UpdateItemResponse UpdateItem(1: UpdateItemRequest req)
     CreateItemResponse CreateItem(1: CreateItemRequest req)
     GetItemListResponse GetItemList(1: GetItemListRequest req)
     GetItemChangeHistoryResponse GetItemChangeHistory(1: GetItemChangeHistoryRequest req)
+    IncrCountResponse IncrCount(1: IncrCountRequest req)
 }

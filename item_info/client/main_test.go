@@ -38,7 +38,7 @@ func TestCreateItem(t *testing.T) {
 }
 
 func TestGetItem(t *testing.T) {
-	resp, err := cli.GetItem(ctx, &item.GetItemRequest{ItemIdList: []int64{123}})
+	resp, err := cli.GetItem(ctx, &item.GetItemRequest{ItemIdList: []int64{10001}})
 	fmt.Println(err)
 	fmt.Println(litter.Sdump(resp))
 }
@@ -54,6 +54,16 @@ func TestUpdateItem(t *testing.T) {
 
 func TestGetItemChange(t *testing.T) {
 	resp, err := cli.GetItemChangeHistory(ctx, &item.GetItemChangeHistoryRequest{})
+	fmt.Println(err)
+	fmt.Println(litter.Sdump(resp))
+}
+
+func TestIncrCount(t *testing.T) {
+	resp, err := cli.IncrCount(ctx, &item.IncrCountRequest{
+		ItemId:    10001,
+		CountType: item.CountType_Play,
+		Incr:      1,
+	})
 	fmt.Println(err)
 	fmt.Println(litter.Sdump(resp))
 }

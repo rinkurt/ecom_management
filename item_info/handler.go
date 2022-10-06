@@ -33,3 +33,8 @@ func (s *ItemServiceImpl) GetItemList(ctx context.Context, req *item.GetItemList
 func (s *ItemServiceImpl) GetItemChangeHistory(ctx context.Context, req *item.GetItemChangeHistoryRequest) (resp *item.GetItemChangeHistoryResponse, err error) {
 	return handlers.GetItemChangeHistory(ctx, req), nil
 }
+
+// IncrCount implements the ItemServiceImpl interface.
+func (s *ItemServiceImpl) IncrCount(ctx context.Context, req *item.IncrCountRequest) (resp *item.IncrCountResponse, err error) {
+	return handlers.IncrCount(ctx, req), nil
+}

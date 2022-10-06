@@ -24,6 +24,7 @@ func NewServiceInfo() *kitex.ServiceInfo {
 		"CreateItem":           kitex.NewMethodInfo(createItemHandler, newItemServiceCreateItemArgs, newItemServiceCreateItemResult, false),
 		"GetItemList":          kitex.NewMethodInfo(getItemListHandler, newItemServiceGetItemListArgs, newItemServiceGetItemListResult, false),
 		"GetItemChangeHistory": kitex.NewMethodInfo(getItemChangeHistoryHandler, newItemServiceGetItemChangeHistoryArgs, newItemServiceGetItemChangeHistoryResult, false),
+		"IncrCount":            kitex.NewMethodInfo(incrCountHandler, newItemServiceIncrCountArgs, newItemServiceIncrCountResult, false),
 	}
 	extra := map[string]interface{}{
 		"PackageName": "item",
@@ -129,6 +130,24 @@ func newItemServiceGetItemChangeHistoryResult() interface{} {
 	return item.NewItemServiceGetItemChangeHistoryResult()
 }
 
+func incrCountHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*item.ItemServiceIncrCountArgs)
+	realResult := result.(*item.ItemServiceIncrCountResult)
+	success, err := handler.(item.ItemService).IncrCount(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newItemServiceIncrCountArgs() interface{} {
+	return item.NewItemServiceIncrCountArgs()
+}
+
+func newItemServiceIncrCountResult() interface{} {
+	return item.NewItemServiceIncrCountResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -184,6 +203,16 @@ func (p *kClient) GetItemChangeHistory(ctx context.Context, req *item.GetItemCha
 	_args.Req = req
 	var _result item.ItemServiceGetItemChangeHistoryResult
 	if err = p.c.Call(ctx, "GetItemChangeHistory", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) IncrCount(ctx context.Context, req *item.IncrCountRequest) (r *item.IncrCountResponse, err error) {
+	var _args item.ItemServiceIncrCountArgs
+	_args.Req = req
+	var _result item.ItemServiceIncrCountResult
+	if err = p.c.Call(ctx, "IncrCount", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
